@@ -1,0 +1,90 @@
+# Dependencies
+node_modules/
+
+# Next.js build output and hosting metadata
+.next/
+.next-e2e/
+out/
+.vercel/
+next-env.d.ts
+
+# Local environment files and secrets
+.env
+.env.*
+!.env.example
+.envrc
+.direnv/
+.npmrc
+client_secret*.json
+credentials*.json
+service-account*.json
+service_account*.json
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
+
+# Local databases, evidence, uploads, and runtime state
+.local/
+*.db
+*.db-*
+*.sqlite
+*.sqlite3
+*.pglite
+/evidence/
+/uploads/
+/storage/
+
+# Real provisioning files may contain organization and account data
+/provision.json
+/provision.*.json
+!/provision.example.json
+
+# Generated reports, screenshots, and test artifacts
+/output/
+/test-results/
+/playwright-report/
+/blob-report/
+/coverage/
+/.nyc_output/
+
+# Tool caches and generated metadata
+*.tsbuildinfo
+.cache/
+.turbo/
+.swc/
+.eslintcache
+.stylelintcache
+
+# Logs and diagnostic dumps
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.pid
+*.pid.lock
+*.stackdump
+*.bak
+*.tmp
+*.orig
+*.rej
+
+# Editor and operating-system files
+.idea/
+.vscode/
+.claude/settings.local.json
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Temporary files created at the repository root
+/.tmp/
+/tmp/
+/temp/
