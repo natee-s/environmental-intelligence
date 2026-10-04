@@ -8,10 +8,16 @@
 - เพิ่ม `npm run start:hosted`: ใช้ PostgreSQL, ปฏิเสธ local adapter, migrations/optional Demo seed ก่อนเปิด Next.js ที่ `0.0.0.0:$PORT`; ใช้ HTTPS URL ที่ Render กำหนดเมื่อไม่มี APP_URL
 - ผู้ใช้เลือก Demo อ่านอย่างเดียวพร้อมรหัสเข้าชมแล้ว: เพิ่ม `hosted-demo` login, บัญชีผู้เข้าชมแยก, จำกัด Site/role ที่ backend, ปฏิเสธ commands และ revoke session เมื่อหมุนรหัส
 - เพิ่ม migration `007_hosted_demo_sessions.sql` สำหรับผูก session กับ hash ของรหัสเข้าชม ไม่มี plaintext secret ในฐานข้อมูล/GitHub
-- เตรียม Web Service Free จาก `main` ใน Singapore; ยังต้องรอผล deploy และตรวจ URL ออนไลน์
-- ยังไม่ทดสอบ hosted startup/flow บน Render; การสร้างฐานข้อมูลอย่างเดียวไม่ใช่การ deploy สำเร็จ
+- Web Service Free `environmental-intelligence` จาก `main` ใน Singapore: **Live** (commit `bd35a93`, 2026-10-04)
+- URL: https://environmental-intelligence-onne.onrender.com — ใช้รหัสเข้าชมใน Environment ของ Render; สำเนา local อยู่ `.local/render-demo-access.txt` (gitignored) ไม่ใส่รหัสในเอกสารสาธารณะ
+- Render startup ผ่าน migrations/seed และ health check ด้วย PostgreSQL 18, bind `0.0.0.0:10000`; local adapters/worker ไม่เปิดใช้
+- Hosted smoke ผ่านเมื่อ 2026-10-04T16:02:50Z: HTTPS/PG health, unauthenticated 401, รหัสผิด 401, Origin ผิด 403, local/Google login ปิด, Secure cookie, permissions read/export, Site Demo เดียว, KPI 30 วัน, พารามิเตอร์น้ำเสีย 8 รายการ, mutation/cross-Site 403, Source link, CSV กันยายน และ logout revocation
+- ตรวจหน้าจอออนไลน์ login → Overview → Wastewater/Monthly analysis; ภาพและผลตรวจอยู่ `.local/render-overview.jpg` / `.local/render-smoke.json` (gitignored)
 - ตรวจหลังเพิ่ม startup: `npm run typecheck`, `npm run build` ผ่าน และ `npm test` ผ่าน 35/35
 - ตรวจหลังเพิ่ม hosted Demo login: typecheck/build ผ่าน และ tests ผ่าน **38/38** รวมรหัสผิด, Site/role isolation, mutation denied, rotation/revocation
+- PostgreSQL regression ผ่าน **27/27** หลังเพิ่ม migration 007; Render build ผ่านด้วย Node 24.21.0
+- ข้อจำกัด hosting: ฐาน Free หมดอายุ 2026-11-03, เว็บพักเมื่อไม่ใช้งาน; Demo ไม่ใช้ private storage/worker/Google จริง ไม่ถือเป็น production UAT
+- Auto-deploy จาก `main`; Build Filters ไม่ trigger เมื่อเปลี่ยนเฉพาะ README.md, IMPLEMENTATION_STATUS.md หรือ scripts/hosted-smoke.ts
 
 ## ผลส่งมอบในเครื่อง
 

@@ -22,11 +22,15 @@ Render Free เหมาะสำหรับทดลอง: เว็บพั
 
 ### Demo ออนไลน์สำหรับส่งลิงก์
 
+เว็บ Demo: [เปิด ENVIRA](https://environmental-intelligence-onne.onrender.com) ใช้รหัสเข้าชมที่เจ้าของระบบส่งให้ ข้อมูลเริ่มต้นสำหรับดูเป็นเดือนกันยายน 2569 เว็บนี้เปิดให้อ่านและส่งออกเท่านั้น
+
 ตั้ง `AUTH_MODE=hosted-demo`, `SEED_DEMO=true`, `DEMO_ACCESS_CODE` เป็นรหัสสุ่มอย่างน้อย 16 ตัวอักษร ร่วมกับค่า hosted ด้านบน รหัสเก็บใน Environment ของ Render เท่านั้น ไม่ใส่ GitHub หรือ `NEXT_PUBLIC_*` ผู้เข้าชมใช้บัญชี `นาย I • ผู้เข้าชม Demo` ซึ่ง backend จำกัดให้อ่านและ export เฉพาะ `site-a` ที่เป็น Demo ไม่มีสิทธิ์แก้ไข นำเข้า อนุมัติ หรือปิดงาน แม้เพิ่ม grants ให้บัญชีนี้ก็ตาม
 
 Session มีอายุ 8 ชั่วโมง ใช้ Secure/HttpOnly/SameSite cookie; เมื่อเปลี่ยนรหัสเข้าชมและ redeploy session เดิมจะไม่ผ่านการตรวจอีก Login ถูกจำกัดคำขอต่อ process โหมดนี้ใช้ฐานข้อมูล Demo แยกเท่านั้นและ startup ปฏิเสธฐานที่มี Site จริง เก็บประวัติ login/download ได้ แต่คำสั่งเปลี่ยนข้อมูลธุรกิจทั้งหมดถูกปฏิเสธ หน้าประชุมและ export ใช้ข้อมูลอนุมัติแล้วเหมือนระบบในเครื่อง
 
 Google, local login และ worker ไม่เปิดใช้ใน Demo ออนไลน์ เมื่อต้องการใช้งานจริงให้ตั้ง deployment และฐานข้อมูลแยก พร้อม Google allowlist, storage gateway, worker และ backup ตามหัวข้อ production
+
+ตรวจ deployment ซ้ำได้ด้วย `npx tsx scripts/hosted-smoke.ts https://<your-demo-host> <path-to-access-code-file>` ใช้เฉพาะ Demo ของคุณ Script ตรวจ read/export, denied mutations/ข้าม Site, login/logout และบันทึกผลที่ `.local/render-smoke.json` โดยไม่พิมพ์รหัสหรือ cookie อย่าเก็บไฟล์รหัสใน Git; เมื่อ pull โค้ดที่เพิ่ม migration ให้หยุด local server ก่อนรัน `npm run db:migrate` แล้วเริ่ม server ใหม่
 
 ## เริ่มใช้งานในเครื่อง
 
