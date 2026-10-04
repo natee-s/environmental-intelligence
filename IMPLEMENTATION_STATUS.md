@@ -1,5 +1,15 @@
 # Implementation status — 2026-10-04
 
+## เตรียม Render — 2026-10-04
+
+- เชื่อมบัญชี Render และพบ GitHub repository `natee-s/environmental-intelligence`
+- สร้าง PostgreSQL Free `envira-demo-db` ใน Singapore (PostgreSQL 18), Available; วันหมดอายุที่ Dashboard ระบุ **2026-11-03**
+- ปิด public inbound ของฐานข้อมูลแล้ว รับการเชื่อมต่อผ่าน private network เท่านั้น ไม่ export credentials ลงไฟล์
+- เพิ่ม `npm run start:hosted`: ใช้ PostgreSQL, ปฏิเสธ local adapter, migrations/optional Demo seed ก่อนเปิด Next.js ที่ `0.0.0.0:$PORT`; ใช้ HTTPS URL ที่ Render กำหนดเมื่อไม่มี APP_URL
+- **ยังไม่มี Web Service/ลิงก์ใช้งาน:** รอเลือกวิธีเข้าสู่ระบบออนไลน์ บัญชี Local Demo ไม่รองรับ public hostname; Google ยังไม่มี credentials และบัญชีจริงที่ provision
+- ยังไม่ทดสอบ hosted startup/flow บน Render; การสร้างฐานข้อมูลอย่างเดียวไม่ใช่การ deploy สำเร็จ
+- ตรวจหลังเพิ่ม startup: `npm run typecheck`, `npm run build` ผ่าน และ `npm test` ผ่าน 35/35
+
 ## ผลส่งมอบในเครื่อง
 
 Operational MVP มีข้อมูลจริงในฐานข้อมูลและ flow หลักครบ ใช้ Next.js 16.3.8 / TypeScript / PostgreSQL โดย local default ใช้ PGlite adapter ที่ persist ลง disk ส่วน driver `pg` ผ่านชุดทดสอบบน PostgreSQL จริงแล้ว **ยังไม่ใช่การตรวจรับ P1 ทุก requirement ของสเปกหรืออนุมัติขึ้น production** รายการที่ยังต้องทำ/ตั้งค่าระบุด้านล่าง

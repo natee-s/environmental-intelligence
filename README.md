@@ -4,6 +4,22 @@
 
 สถานะและข้อจำกัดที่ยังเหลือจากสเปกฉบับเต็มดู [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md) ระบบนี้เป็น Operational MVP สำหรับตรวจรับในเครื่อง ยังไม่ใช่การรับรองความสอดคล้องทางกฎหมายหรือ production deployment
 
+## เตรียม deploy บน Render
+
+ใช้ Node Web Service และ PostgreSQL ใน region เดียวกัน (Singapore) ไม่ใช้ Static Site หรือฐานข้อมูล PGlite บน filesystem ของ Render
+
+- Build Command: `npm ci --include=dev && npm run build` (ต้องมี `tsx` สำหรับ startup/worker)
+- Start Command: `npm run start:hosted`
+- Health Check: `/api/health`
+- Environment: `NODE_VERSION=24`, `LOCAL_DEVELOPMENT=false`, `DB_DRIVER=postgres`, `DATABASE_URL` เป็น Internal Database URL, `AUTH_MODE=google`, `INLINE_WORKER=false`, `EVIDENCE_PROVIDER=remote`
+- `APP_URL` ตั้งเป็น HTTPS URL ของเว็บ หรือปล่อยให้ startup ใช้ `RENDER_EXTERNAL_URL` อัตโนมัติ
+- Google ต้องตั้ง `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URI=https://<hostname>/api/auth/google/callback` และ provision บัญชีที่อนุญาตก่อนใช้ บัญชี Demo ในเครื่องใช้ Google login ไม่ได้
+- `SEED_DEMO=true` ใช้ได้เฉพาะฐาน Demo แยกต่างหาก; ค่าเริ่มต้นไม่ seed และ startup จะปฏิเสธหากมี Site จริงอยู่
+- Startup จะ serialize migrations/seed ด้วย PostgreSQL advisory lock และ bind `0.0.0.0:$PORT`; การเปลี่ยนฐานข้อมูลไม่ใช่ migration rollback อัตโนมัติ
+- ปิด public inbound ของ PostgreSQL ใช้ private network ระหว่างบริการ ไม่เก็บ secrets ใน GitHub
+
+Render Free เหมาะสำหรับทดลอง: เว็บพักหลังไม่มี traffic 15 นาที, PostgreSQL Free หมดอายุหลังสร้าง 30 วันและไม่มี backup; ดู [ข้อจำกัดปัจจุบัน](https://render.com/docs/free) ก่อนใช้ระยะยาว Worker และ private storage gateway สำหรับงานจริงต้องตั้งค่าต่างหาก Local adapters ไม่เปิดใช้บนเว็บออนไลน์
+
 ## เริ่มใช้งานในเครื่อง
 
 ต้องมี Node.js 22 ขึ้นไป และ npm (เครื่องที่ตรวจใช้ Node 24) เปิด PowerShell ในโฟลเดอร์โปรเจกต์:
