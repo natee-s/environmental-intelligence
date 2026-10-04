@@ -20,6 +20,14 @@
 
 Render Free เหมาะสำหรับทดลอง: เว็บพักหลังไม่มี traffic 15 นาที, PostgreSQL Free หมดอายุหลังสร้าง 30 วันและไม่มี backup; ดู [ข้อจำกัดปัจจุบัน](https://render.com/docs/free) ก่อนใช้ระยะยาว Worker และ private storage gateway สำหรับงานจริงต้องตั้งค่าต่างหาก Local adapters ไม่เปิดใช้บนเว็บออนไลน์
 
+### Demo ออนไลน์สำหรับส่งลิงก์
+
+ตั้ง `AUTH_MODE=hosted-demo`, `SEED_DEMO=true`, `DEMO_ACCESS_CODE` เป็นรหัสสุ่มอย่างน้อย 16 ตัวอักษร ร่วมกับค่า hosted ด้านบน รหัสเก็บใน Environment ของ Render เท่านั้น ไม่ใส่ GitHub หรือ `NEXT_PUBLIC_*` ผู้เข้าชมใช้บัญชี `นาย I • ผู้เข้าชม Demo` ซึ่ง backend จำกัดให้อ่านและ export เฉพาะ `site-a` ที่เป็น Demo ไม่มีสิทธิ์แก้ไข นำเข้า อนุมัติ หรือปิดงาน แม้เพิ่ม grants ให้บัญชีนี้ก็ตาม
+
+Session มีอายุ 8 ชั่วโมง ใช้ Secure/HttpOnly/SameSite cookie; เมื่อเปลี่ยนรหัสเข้าชมและ redeploy session เดิมจะไม่ผ่านการตรวจอีก Login ถูกจำกัดคำขอต่อ process โหมดนี้ใช้ฐานข้อมูล Demo แยกเท่านั้นและ startup ปฏิเสธฐานที่มี Site จริง เก็บประวัติ login/download ได้ แต่คำสั่งเปลี่ยนข้อมูลธุรกิจทั้งหมดถูกปฏิเสธ หน้าประชุมและ export ใช้ข้อมูลอนุมัติแล้วเหมือนระบบในเครื่อง
+
+Google, local login และ worker ไม่เปิดใช้ใน Demo ออนไลน์ เมื่อต้องการใช้งานจริงให้ตั้ง deployment และฐานข้อมูลแยก พร้อม Google allowlist, storage gateway, worker และ backup ตามหัวข้อ production
+
 ## เริ่มใช้งานในเครื่อง
 
 ต้องมี Node.js 22 ขึ้นไป และ npm (เครื่องที่ตรวจใช้ Node 24) เปิด PowerShell ในโฟลเดอร์โปรเจกต์:

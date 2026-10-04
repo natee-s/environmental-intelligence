@@ -11,6 +11,8 @@ import {
   token,
   authEvent,
   rateLimit,
+  hostedDemoConfig,
+  loginHostedDemo,
 } from '@/lib/auth';
 import { bootstrap, execute } from '@/lib/service';
 import { DomainError, authorize, one, hash, fail, event, type Row, type Actor } from '@/lib/core';
@@ -43,14 +45,28 @@ async function handler(req: NextRequest) {
       });
     if (route === 'auth/options') {
       const local = process.env.LOCAL_DEVELOPMENT === 'true' && process.env.AUTH_MODE === 'local';
+      const hostedDemo = process.env.AUTH_MODE === 'hosted-demo';
+      if (hostedDemo) hostedDemoConfig();
       return json({
         local,
-        google: !!process.env.GOOGLE_CLIENT_ID,
+        hostedDemo,
+        google: !hostedDemo && !!process.env.GOOGLE_CLIENT_ID,
         users: local
           ? (await db.query('SELECT id,name,email FROM users WHERE active=true AND demo=true ORDER BY name'))
               .rows
           : [],
       });
+    }
+    if (route === 'auth/demo' && req.method === 'POST') {
+      sameOrigin(req);
+      if (Number(req.headers.get('content-length') || 0) > 1024) fail('ข้อมูลใหญ่เกินกำหนด', 413);
+      const raw = await req.text();
+      if (Buffer.byteLength(raw) > 1024) fail('ข้อมูลใหญ่เกินกำหนด', 413);
+      const value = await loginHostedDemo(db, JSON.parse(raw).code);
+      await authEvent(db, 'demo-viewer', 'LOGIN_HOSTED_DEMO');
+      const res = json({ ok: true });
+      res.cookies.set(cookieName, value, cookieOptions());
+      return res;
     }
     if (route === 'auth/local' && req.method === 'POST') {
       sameOrigin(req);
@@ -67,6 +83,7 @@ async function handler(req: NextRequest) {
       return res;
     }
     if (route === 'auth/google') {
+      if (process.env.AUTH_MODE === 'hosted-demo') fail('Demo ออนไลน์ใช้รหัสเข้าชม', 403);
       if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET)
         fail('ยังไม่ได้ตั้งค่า Google sign-in', 503);
       rateLimit('google-login');
@@ -92,6 +109,7 @@ async function handler(req: NextRequest) {
       return res;
     }
     if (route === 'auth/google/callback') {
+      if (process.env.AUTH_MODE === 'hosted-demo') fail('Demo ออนไลน์ใช้รหัสเข้าชม', 403);
       const state = req.nextUrl.searchParams.get('state');
       if (!state || state !== req.cookies.get('oauth_state')?.value || !req.nextUrl.searchParams.get('code'))
         fail('Google sign-in ถูกยกเลิกหรือ state ไม่ถูกต้อง', 401);
@@ -238,6 +256,7 @@ async function handler(req: NextRequest) {
       return json({ site: found.site_id, records, events });
     }
     if (route === 'command' && req.method === 'POST') {
+      if (process.env.AUTH_MODE === 'hosted-demo') fail('Demo ออนไลน์เปิดให้อ่านอย่างเดียว', 403);
       sameOrigin(req);
       if (!req.headers.get('content-type')?.includes('application/json')) fail('ต้องส่ง JSON', 415);
       if (Number(req.headers.get('content-length') || 0) > 32 * 1024 * 1024) fail('ข้อมูลใหญ่เกินกำหนด', 413);

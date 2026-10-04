@@ -136,6 +136,7 @@ function App() {
     [modal, setModal] = useState<Row | null>(null),
     [mobile, setMobile] = useState(false),
     [busy, setBusy] = useState(false);
+  const [demoCode, setDemoCode] = useState('');
   const sequence = useRef(0),
     keys = useRef(new Map<string, string>());
   useEffect(() => {
@@ -302,6 +303,27 @@ function App() {
       setBusy(false);
     }
   }
+  async function loginDemo(e: React.FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    setError('');
+    try {
+      const res = await fetch('/api/auth/demo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: demoCode }),
+      });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error);
+      setDemoCode('');
+      router.push('/overview?from=2026-09-01&to=2026-09-30');
+      await load();
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
   if (unauth || (path === '/login' && !data))
     return (
       <div className="login-page">
@@ -349,6 +371,29 @@ function App() {
                 เข้าสู่ระบบด้วย Google
               </a>
             )}
+            {options?.hostedDemo && (
+              <form onSubmit={loginDemo}>
+                <div className="notice amber">
+                  <strong>Demo • อ่านอย่างเดียว</strong>
+                  <br />
+                  ดูข้อมูลตัวอย่าง กราฟ และรายงานเดือนกันยายน 2026 โดยไม่แก้ไขข้อมูล
+                </div>
+                <Field label="รหัสเข้าชม Demo">
+                  <input
+                    aria-label="รหัสเข้าชม Demo"
+                    type="password"
+                    value={demoCode}
+                    onChange={(e) => setDemoCode(e.target.value)}
+                    autoComplete="current-password"
+                    maxLength={256}
+                    required
+                  />
+                </Field>
+                <button className="button full" disabled={busy} type="submit">
+                  เข้าชม Demo <ArrowUpRight size={17} />
+                </button>
+              </form>
+            )}
             {options?.local && (
               <>
                 <div className="notice amber">
@@ -374,7 +419,7 @@ function App() {
                 </button>
               </>
             )}
-            {!options?.local && !options?.google && (
+            {!options?.local && !options?.google && !options?.hostedDemo && (
               <p className="notice">ยังไม่ได้ตั้งค่าบริการเข้าสู่ระบบ กรุณาติดต่อผู้ดูแล</p>
             )}
             <div className="login-foot">
@@ -938,7 +983,7 @@ function App() {
               {data.notifications?.some((n: Row) => !n.read_at) && <i />}
             </Link>
             <div className="user-avatar">
-              {data.actor.demo ? data.actor.name.match(/[A-H]/)?.[0] || 'D' : data.actor.name.charAt(0)}
+              {data.actor.demo ? data.actor.name.match(/[A-I]/)?.[0] || 'D' : data.actor.name.charAt(0)}
             </div>
             <div className="user-label">
               <strong>{data.actor.name.split(' • ')[0]}</strong>
@@ -1067,6 +1112,11 @@ function App() {
             <div className="demo-ribbon">
               <span>DEMO</span> สภาพแวดล้อม local development · ข้อมูลตัวอย่างมีป้าย Demo ·
               เกณฑ์กฎหมายยังไม่ยืนยัน
+            </div>
+          )}
+          {data.authMode === 'hosted-demo' && (
+            <div className="demo-ribbon">
+              <span>DEMO</span> อ่านอย่างเดียว · ข้อมูลตัวอย่างกันยายน 2569 · เกณฑ์กฎหมายยังไม่ยืนยัน
             </div>
           )}
           {error && (

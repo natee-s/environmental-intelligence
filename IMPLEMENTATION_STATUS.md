@@ -6,9 +6,12 @@
 - สร้าง PostgreSQL Free `envira-demo-db` ใน Singapore (PostgreSQL 18), Available; วันหมดอายุที่ Dashboard ระบุ **2026-11-03**
 - ปิด public inbound ของฐานข้อมูลแล้ว รับการเชื่อมต่อผ่าน private network เท่านั้น ไม่ export credentials ลงไฟล์
 - เพิ่ม `npm run start:hosted`: ใช้ PostgreSQL, ปฏิเสธ local adapter, migrations/optional Demo seed ก่อนเปิด Next.js ที่ `0.0.0.0:$PORT`; ใช้ HTTPS URL ที่ Render กำหนดเมื่อไม่มี APP_URL
-- **ยังไม่มี Web Service/ลิงก์ใช้งาน:** รอเลือกวิธีเข้าสู่ระบบออนไลน์ บัญชี Local Demo ไม่รองรับ public hostname; Google ยังไม่มี credentials และบัญชีจริงที่ provision
+- ผู้ใช้เลือก Demo อ่านอย่างเดียวพร้อมรหัสเข้าชมแล้ว: เพิ่ม `hosted-demo` login, บัญชีผู้เข้าชมแยก, จำกัด Site/role ที่ backend, ปฏิเสธ commands และ revoke session เมื่อหมุนรหัส
+- เพิ่ม migration `007_hosted_demo_sessions.sql` สำหรับผูก session กับ hash ของรหัสเข้าชม ไม่มี plaintext secret ในฐานข้อมูล/GitHub
+- เตรียม Web Service Free จาก `main` ใน Singapore; ยังต้องรอผล deploy และตรวจ URL ออนไลน์
 - ยังไม่ทดสอบ hosted startup/flow บน Render; การสร้างฐานข้อมูลอย่างเดียวไม่ใช่การ deploy สำเร็จ
 - ตรวจหลังเพิ่ม startup: `npm run typecheck`, `npm run build` ผ่าน และ `npm test` ผ่าน 35/35
+- ตรวจหลังเพิ่ม hosted Demo login: typecheck/build ผ่าน และ tests ผ่าน **38/38** รวมรหัสผิด, Site/role isolation, mutation denied, rotation/revocation
 
 ## ผลส่งมอบในเครื่อง
 

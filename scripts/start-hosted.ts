@@ -2,6 +2,7 @@ import { spawn } from 'node:child_process';
 import { createRequire } from 'node:module';
 import { createDatabase, migrate } from '../src/lib/db';
 import { seed } from '../src/lib/seed';
+import { provisionDemoViewer } from '../src/lib/auth';
 
 // Render supplies this URL at runtime, including for a newly assigned subdomain.
 if (!process.env.APP_URL && process.env.RENDER_EXTERNAL_URL)
@@ -24,6 +25,7 @@ try {
       if (realSites.rows.length) throw new Error('Refusing Demo seed in a database containing real sites');
       await seed(db);
     }
+    if (process.env.AUTH_MODE === 'hosted-demo') await provisionDemoViewer(db);
   });
   console.log('Hosted database setup completed.');
 } finally {

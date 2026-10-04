@@ -1,6 +1,7 @@
 import type { DB } from './db';
 import {
   type Actor,
+  demoViewerId,
   type Row,
   actorById,
   authorize,
@@ -125,6 +126,7 @@ async function userCommand(db: DB, a: Actor, site: string, input: Row) {
   return { id: user.id };
 }
 export async function execute(db: DB, userId: string, action: string, site: string, input: Row, key: string) {
+  if (userId === demoViewerId) fail('Demo ออนไลน์เปิดให้อ่านอย่างเดียว', 403);
   if (!key || key.length > 120) fail('ต้องมี idempotency key');
   return db.transaction(async (tx) => {
     await one(tx, 'SELECT id FROM users WHERE id=$1 FOR UPDATE', [userId]);
@@ -222,7 +224,7 @@ export async function bootstrap(
       'SELECT DISTINCT s.* FROM sites s JOIN grants g ON g.site_id=s.id WHERE g.user_id=$1 ORDER BY s.code',
       [a.id],
     )
-  ).rows;
+  ).rows.filter((s) => a.grants.some((g) => g.site_id === s.id));
   const selected = site || sites[0]?.id;
   if (!selected) fail('บัญชีนี้ยังไม่มี Site ที่ได้รับอนุญาต', 403);
   if (!sites.some((s) => s.id === selected)) fail('ไม่มีสิทธิ์ในพื้นที่นี้', 403);

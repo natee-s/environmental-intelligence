@@ -23,6 +23,7 @@ export function fail(message: string, status = 422): never {
   throw new DomainError(status, message);
 }
 export const id = () => randomUUID();
+export const demoViewerId = 'demo-viewer';
 export const hash = (v: unknown) =>
   createHash('sha256')
     .update(typeof v === 'string' ? v : JSON.stringify(v))
@@ -57,6 +58,10 @@ export async function actorById(db: DB, userId: string): Promise<Actor> {
   } as Actor;
 }
 export function roles(actor: Actor, site: string) {
+  if (actor.id === demoViewerId)
+    return actor.demo && site === 'site-a' && actor.grants.some((g) => g.site_id === site && g.role === 'MG')
+      ? ['MG']
+      : [];
   return actor.grants.filter((g) => g.site_id === site).map((g) => g.role);
 }
 export const permissions: Record<string, string[]> = {
