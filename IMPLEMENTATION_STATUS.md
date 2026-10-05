@@ -6,6 +6,8 @@
 - เพิ่มเมนูและหน้า `AI ช่วยวิเคราะห์ · เร็ว ๆ นี้` สำหรับผู้มีสิทธิ์อ่าน เพื่อแสดงแนวทางการตรวจแนวโน้ม เตรียมประเด็นประชุม และติดตามงาน หน้าแจ้งชัดว่ายังไม่เปิดใช้งาน ไม่มีการเชื่อมต่อหรือส่งข้อมูลไปยัง AI
 - Hosted Demo ยังจำกัด Site A และสิทธิ์ read/export ที่ backend ตามเดิม; analytics ที่เปิดใช้ยังคำนวณจากข้อมูลอนุมัติ ไม่ใช้ผล AI
 - ตรวจ `npm run check` ผ่าน: typecheck, 38/38 domain tests และ production build; browser test ของหน้า AI และ responsive navigation ผ่านบน Edge
+- Push commit `3a39bc9` ไป `main` แล้ว Render auto-deploy เวอร์ชันใหม่สำเร็จ ตรวจออนไลน์ 2026-10-05: `/api/health` ผ่าน, รหัสที่แสดงตรงค่า Render, ปุ่มคัดลอกและ Login ใช้ได้, หน้า AI desktop/mobile เปิดได้และไม่มีแนวนอนล้น
+- Hosted smoke ผ่านหลัง deploy: 401 เมื่อไม่ login/รหัสผิด, 403 เมื่อแก้ข้อมูลหรือข้าม Site, KPI กันยายน 30 วันและน้ำเสีย 8 พารามิเตอร์, source/CSV และ logout ทำงาน
 
 ## เตรียม Render — 2026-10-04
 
@@ -15,7 +17,7 @@
 - เพิ่ม `npm run start:hosted`: ใช้ PostgreSQL, ปฏิเสธ local adapter, migrations/optional Demo seed ก่อนเปิด Next.js ที่ `0.0.0.0:$PORT`; ใช้ HTTPS URL ที่ Render กำหนดเมื่อไม่มี APP_URL
 - ผู้ใช้เลือก Demo อ่านอย่างเดียวพร้อมรหัสเข้าชมแล้ว: เพิ่ม `hosted-demo` login, บัญชีผู้เข้าชมแยก, จำกัด Site/role ที่ backend, ปฏิเสธ commands และ revoke session เมื่อหมุนรหัส
 - เพิ่ม migration `007_hosted_demo_sessions.sql` สำหรับผูก session กับ hash ของรหัสเข้าชม ไม่มี plaintext secret ในฐานข้อมูล/GitHub
-- Web Service Free `environmental-intelligence` จาก `main` ใน Singapore: **Live** (commit `bd35a93`, 2026-10-04)
+- Web Service Free `environmental-intelligence` จาก `main` ใน Singapore: **Live** (commit `3a39bc9`, 2026-10-05)
 - URL: https://environmental-intelligence-onne.onrender.com — ใช้รหัสเข้าชมใน Environment ของ Render; สำเนา local อยู่ `.local/render-demo-access.txt` (gitignored) ไม่ใส่รหัสในเอกสารสาธารณะ
 - Render startup ผ่าน migrations/seed และ health check ด้วย PostgreSQL 18, bind `0.0.0.0:10000`; local adapters/worker ไม่เปิดใช้
 - Hosted smoke ผ่านเมื่อ 2026-10-04T16:02:50Z: HTTPS/PG health, unauthenticated 401, รหัสผิด 401, Origin ผิด 403, local/Google login ปิด, Secure cookie, permissions read/export, Site Demo เดียว, KPI 30 วัน, พารามิเตอร์น้ำเสีย 8 รายการ, mutation/cross-Site 403, Source link, CSV กันยายน และ logout revocation
