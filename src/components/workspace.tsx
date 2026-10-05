@@ -35,6 +35,8 @@ import {
   Download,
   Check,
   Activity,
+  Sparkles,
+  Copy,
 } from 'lucide-react';
 import {
   Badge,
@@ -53,6 +55,7 @@ import { RecordForm, IssueForm, ActionForm, EvidenceForm, ImportPage, type Comma
 import { AdminMasters, AdminUsers, AdminSites } from './admin';
 import { Dashboard, RecordsTable, IssueDetail } from './operations';
 import { MonthlyAnalysis } from './analysis';
+import { AiPreview } from './ai-preview';
 const nav = [
   {
     group: 'พื้นที่ทำงาน',
@@ -77,6 +80,7 @@ const nav = [
       ['/documents', 'หลักฐานและเอกสาร', Paperclip, 'read'],
       ['/reports', 'รายงาน', FileBarChart, 'read'],
       ['/analysis/monthly', 'วิเคราะห์สำหรับประชุม', Activity, 'read'],
+      ['/ai-insights', 'AI ช่วยวิเคราะห์ · เร็ว ๆ นี้', Sparkles, 'read'],
     ],
   },
   {
@@ -108,6 +112,7 @@ const names: Record<string, string> = {
   '/documents': 'หลักฐานและเอกสาร',
   '/reports': 'รายงานสิ่งแวดล้อม',
   '/analysis/monthly': 'วิเคราะห์สำหรับประชุมประจำเดือน',
+  '/ai-insights': 'AI ช่วยวิเคราะห์ · เร็ว ๆ นี้',
   '/notifications': 'การแจ้งเตือนของฉัน',
   '/admin/master-data': 'ข้อมูลหลักและสายอนุมัติ',
   '/admin/rules': 'เกณฑ์และกฎแจ้งเตือน',
@@ -137,6 +142,7 @@ function App() {
     [mobile, setMobile] = useState(false),
     [busy, setBusy] = useState(false);
   const [demoCode, setDemoCode] = useState('');
+  const [codeCopied, setCodeCopied] = useState(false);
   const sequence = useRef(0),
     keys = useRef(new Map<string, string>());
   useEffect(() => {
@@ -377,6 +383,30 @@ function App() {
                   <strong>Demo • อ่านอย่างเดียว</strong>
                   <br />
                   ดูข้อมูลตัวอย่าง กราฟ และรายงานเดือนกันยายน 2026 โดยไม่แก้ไขข้อมูล
+                  {options.demoAccessCode && (
+                    <div className="demo-access">
+                      <strong>รหัสเข้าชม:</strong>
+                      <div className="demo-access-row">
+                        <code>{options.demoAccessCode}</code>
+                        <button
+                          type="button"
+                          className="demo-copy"
+                          aria-label="คัดลอกรหัสเข้าชม Demo"
+                          onClick={async () => {
+                            try {
+                              await navigator.clipboard.writeText(options.demoAccessCode);
+                              setCodeCopied(true);
+                            } catch {
+                              setError('คัดลอกอัตโนมัติไม่ได้ กรุณาเลือกรหัสในกรอบแล้วคัดลอก');
+                            }
+                          }}
+                        >
+                          {codeCopied ? <Check size={15} /> : <Copy size={15} />}
+                          {codeCopied ? 'คัดลอกแล้ว' : 'คัดลอก'}
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
                 <Field label="รหัสเข้าชม Demo">
                   <input
@@ -534,6 +564,7 @@ function App() {
         openIssue={(initial) => setModal({ type: 'issue', initial })}
       />
     );
+  else if (current === '/ai-insights') content = <AiPreview />;
   else if (current === '/data/imports') content = <ImportPage data={data} command={command} />;
   else if (current === '/data' || current === '/data/production')
     content = (
@@ -1051,63 +1082,65 @@ function App() {
               )}
             </div>
           </div>
-          <form
-            className="filterbar"
-            key={`${data.site}-${data.from}-${data.to}`}
-            onSubmit={(e) => {
-              e.preventDefault();
-              const f = new FormData(e.currentTarget);
-              const query = new URLSearchParams({
-                site: String(f.get('site')),
-                from: String(f.get('from') || data.from),
-                to: String(f.get('to') || data.to),
-              });
-              router.push(current + '?' + query);
-            }}
-          >
-            <label>
-              <Factory size={16} />
-              <select aria-label="เลือก Site" name="site" defaultValue={data.site}>
-                {data.sites.map((s: Row) => (
-                  <option key={s.id} value={s.id}>
-                    {s.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-            {analytical && (
-              <>
-                <label>
-                  <span>ช่วงเวลา</span>
-                  <input aria-label="วันที่เริ่มต้น" name="from" type="date" defaultValue={data.from} />
-                  <span>–</span>
-                  <input aria-label="วันที่สิ้นสุด" name="to" type="date" defaultValue={data.to} />
-                </label>
-                <span className="filter-context">เทียบช่วงก่อนหน้าเท่ากัน</span>
-              </>
-            )}
-            {analytical && data.sites.find((s: Row) => s.id === data.site)?.demo && (
-              <button
-                className="button secondary demo-month-shortcut"
-                type="button"
-                onClick={() =>
-                  router.push(
-                    current +
-                      '?' +
-                      new URLSearchParams({ site: data.site, from: '2026-09-01', to: '2026-09-30' }),
-                  )
-                }
-              >
-                Demo กันยายน 2569
+          {current !== '/ai-insights' && (
+            <form
+              className="filterbar"
+              key={`${data.site}-${data.from}-${data.to}`}
+              onSubmit={(e) => {
+                e.preventDefault();
+                const f = new FormData(e.currentTarget);
+                const query = new URLSearchParams({
+                  site: String(f.get('site')),
+                  from: String(f.get('from') || data.from),
+                  to: String(f.get('to') || data.to),
+                });
+                router.push(current + '?' + query);
+              }}
+            >
+              <label>
+                <Factory size={16} />
+                <select aria-label="เลือก Site" name="site" defaultValue={data.site}>
+                  {data.sites.map((s: Row) => (
+                    <option key={s.id} value={s.id}>
+                      {s.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              {analytical && (
+                <>
+                  <label>
+                    <span>ช่วงเวลา</span>
+                    <input aria-label="วันที่เริ่มต้น" name="from" type="date" defaultValue={data.from} />
+                    <span>–</span>
+                    <input aria-label="วันที่สิ้นสุด" name="to" type="date" defaultValue={data.to} />
+                  </label>
+                  <span className="filter-context">เทียบช่วงก่อนหน้าเท่ากัน</span>
+                </>
+              )}
+              {analytical && data.sites.find((s: Row) => s.id === data.site)?.demo && (
+                <button
+                  className="button secondary demo-month-shortcut"
+                  type="button"
+                  onClick={() =>
+                    router.push(
+                      current +
+                        '?' +
+                        new URLSearchParams({ site: data.site, from: '2026-09-01', to: '2026-09-30' }),
+                    )
+                  }
+                >
+                  Demo กันยายน 2569
+                </button>
+              )}
+              <button className="button filter-apply" type="submit">
+                ใช้ตัวกรอง
               </button>
-            )}
-            <button className="button filter-apply" type="submit">
-              ใช้ตัวกรอง
-            </button>
-            <button className="icon-button" type="button" aria-label="รีเฟรชข้อมูล" onClick={() => load()}>
-              <RefreshCw size={16} />
-            </button>
-          </form>
+              <button className="icon-button" type="button" aria-label="รีเฟรชข้อมูล" onClick={() => load()}>
+                <RefreshCw size={16} />
+              </button>
+            </form>
+          )}
           {data.local && (
             <div className="demo-ribbon">
               <span>DEMO</span> สภาพแวดล้อม local development · ข้อมูลตัวอย่างมีป้าย Demo ·

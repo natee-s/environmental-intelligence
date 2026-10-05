@@ -32,13 +32,19 @@ test('desktop dashboard, responsive navigation and API authorization', async ({ 
     '/documents',
     '/reports',
     '/analysis/monthly',
+    '/ai-insights',
     '/notifications',
   ]) {
     await page.goto(route);
     await expect(page.locator('.main-content')).toBeVisible();
     await expect(page.locator('.error-banner')).toHaveCount(0);
   }
+  await page.goto('/ai-insights');
+  await expect(page.getByText('ยังไม่เปิดใช้งาน • ไม่มีการส่งข้อมูลไปยัง AI')).toBeVisible();
+  await expect(page.locator('.ai-idea')).toHaveCount(3);
   await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/ai-insights');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await page.goto('/overview');
   await expect(page.locator('.kpi-card')).toHaveCount(4);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);

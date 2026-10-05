@@ -50,6 +50,8 @@ async function handler(req: NextRequest) {
       return json({
         local,
         hostedDemo,
+        // The hosted viewer code is intentionally public on the Demo login page.
+        demoAccessCode: hostedDemo ? process.env.DEMO_ACCESS_CODE : undefined,
         google: !hostedDemo && !!process.env.GOOGLE_CLIENT_ID,
         users: local
           ? (await db.query('SELECT id,name,email FROM users WHERE active=true AND demo=true ORDER BY name'))
